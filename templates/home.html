@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div>
+
+  {%if user.is_authenticated%}
+  <h3>hello,{{user.first_name}}</h3>
+  <a href="/logout" class="btn btn-primary btn-lg ml-auto">LOG OUT</a>
+  {%endif%}
+  <a href="/add-donor" class="btn btn-primary btn-lg ml-auto">ADD DONOR</a>
+  
+</div>
+
+
+<!--table-->
+<table class="table m-5">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Name</th>
+      <th scope="col">Place</th>
+      <th scope="col">Bloodgroup</th>
+      <th scope="col">Phone</th>
+    </tr>
+  </thead>
+  <tbody>
+    {%for donor in donors%}
+    <tr>
+      <th scope="row">{{forloop.counter}}</th>
+      <td>{{donor.name}}</td>
+      <td>{{donor.place}}</td>
+      <td>{{donor.bloodgroup}}</td>
+      <td>{{donor.phone}}</td>
+    </tr>
+    {%endfor%}
+  </tbody>
+</table>
+
+{%endblock%}
