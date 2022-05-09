@@ -25,4 +25,13 @@
 
 </form>
 
+<br>
+<div>
+    {% for message in messages %}
+    <div class="alert alert-primary" role="alert">
+        <p> {{message}}</p>
+      </div>
+    {% endfor %}
+</div>
+
 {%endblock%}

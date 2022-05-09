@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Donor
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.conf import settings
+from django.contrib import messages
 
 
 def index(request):
@@ -44,12 +45,32 @@ def signup(request):
         if request.method == "POST":
             name = request.POST["name"]
             username = request.POST["username"]
-            password = request.POST["password"]
-            user = User.objects.create_user(
-                username=username, first_name=name, password=password)
-            user.save()
-            print('user created')
-            return redirect('/login')
+            password1 = request.POST["password1"]
+            password2 = request.POST["password2"]
+            if name == "":
+                messages.info(request, 'name field cannot be empty!!')
+            elif username == "":
+                messages.info(request, 'username field cannot be empty!!')
+            elif password1 == "":
+                messages.info(request, 'password field cannot be empty!!')
+            elif password2 == "":
+                messages.info(request, 'password field cannot be empty!!')
+            else:
+             if password1 == password2:
+                if User.objects.filter(username=username).exists():
+                    messages.info(request, 'username taken')
+                    return redirect('/signup')
+
+                else:
+                    user = User.objects.create_user(
+                        username=username, first_name=name, password=password1)
+                    user.save()
+                    print('user created')
+                    return redirect('/login')
+             else:
+                messages.info(request, 'password not matching')
+            return redirect('/signup')
+
         else:
             return render(request, 'Signup.html')
 
@@ -61,12 +82,20 @@ def login(request):
         if request.method == "POST":
             username = request.POST["username"]
             password = request.POST["password"]
-            user = auth.authenticate(username=username, password=password)
-            if user is not None:
-                auth.login(request, user)
-                return redirect_after_login(request)
+            if username == "":
+                messages.info(request, 'username field cannot be empty!!')
+            elif password == "":
+                messages.info(request, 'password field cannot be empty!!')
             else:
-                return redirect('/login')
+                user = auth.authenticate(username=username, password=password)
+
+                if user is not None:
+                    auth.login(request, user)
+                    return redirect_after_login(request)
+                else:
+                    messages.info(request, 'username/password incorrect!!')
+
+            return redirect('/login')
         else:
             return render(request, 'login.html')
 
