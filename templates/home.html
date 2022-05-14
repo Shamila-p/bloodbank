@@ -4,12 +4,12 @@
 
 <div>
 
-  {%if user.is_authenticated%}
-  <h3>hello,{{user.first_name}}</h3>
+  {% if 'username' in request.session %}
+  <h3>hello,{{request.session.username}}</h3>
   <a href="/logout" class="btn btn-primary btn-lg ml-auto">LOG OUT</a>
   {%endif%}
   <a href="/add-donor" class="btn btn-primary btn-lg ml-auto">ADD DONOR</a>
-  
+
 </div>
 
 

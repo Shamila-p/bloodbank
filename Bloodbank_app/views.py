@@ -15,31 +15,44 @@ def index(request):
     return redirect('/login')
 
 
-@login_required
+#@login_required
 def home(request):
-    donors = Donor.objects.all()
-    return render(request, 'home.html', {'donors': donors})
+    if 'username' in request.session:
+
+        donors = Donor.objects.all()
+        return render(request, 'home.html', {'donors': donors})
+    else:
+        return redirect('/login')
 
 
-@login_required
 def add_donor(request):
-    if request.method == "POST":
-        name = request.POST["name"]
-        place = request.POST["place"]
-        blood_group = request.POST["blood_group"]
-        phone = request.POST["phone"]
-        donors = Donor.objects.create(
-            name=name, place=place, bloodgroup=blood_group, phone=phone)
-        donors.save()
-        print('donor created')
-        return redirect('/home')
+    if 'username' in request.session:
+    
+        if request.method == "POST":
+            name = request.POST["name"]
+            place = request.POST["place"]
+            blood_group = request.POST["blood_group"]
+            phone = request.POST["phone"]
+            donors = Donor.objects.create(
+                name=name, place=place, bloodgroup=blood_group, phone=phone)
+            donors.save()
+            #print('donor created')
+            return redirect('/home')
+  
 
-    if request.method == "GET":
-        return render(request, 'registration.html')
+        if request.method == "GET":
+            return render(request, 'registration.html')
+    else:
+        return redirect('/login')
+        
+
 
 
 def signup(request):
-    if request.user.is_authenticated:
+    #if request.user.is_authenticated:
+    if 'username' in request.session:
+
+
         return redirect('/home')
     else:
         if request.method == "POST":
@@ -56,19 +69,19 @@ def signup(request):
             elif password2 == "":
                 messages.info(request, 'password field cannot be empty!!')
             else:
-             if password1 == password2:
-                if User.objects.filter(username=username).exists():
-                    messages.info(request, 'username taken')
-                    return redirect('/signup')
+                if password1 == password2:
+                    if User.objects.filter(username=username).exists():
+                        messages.info(request, 'username taken')
+                        return redirect('/signup')
 
+                    else:
+                        user = User.objects.create_user(
+                            username=username, first_name=name, password=password1)
+                        user.save()
+                        print('user created')
+                        return redirect('/login')
                 else:
-                    user = User.objects.create_user(
-                        username=username, first_name=name, password=password1)
-                    user.save()
-                    print('user created')
-                    return redirect('/login')
-             else:
-                messages.info(request, 'password not matching')
+                    messages.info(request, 'password not matching')
             return redirect('/signup')
 
         else:
@@ -76,7 +89,8 @@ def signup(request):
 
 
 def login(request):
-    if request.user.is_authenticated:
+    # if request.user.is_authenticated:
+    if 'username' in request.session:
         return redirect('/home')
     else:
         if request.method == "POST":
@@ -90,7 +104,8 @@ def login(request):
                 user = auth.authenticate(username=username, password=password)
 
                 if user is not None:
-                    auth.login(request, user)
+                    #auth.login(request, user)
+                    request.session['username'] = username
                     return redirect_after_login(request)
                 else:
                     messages.info(request, 'username/password incorrect!!')
@@ -115,5 +130,8 @@ def redirect_after_login(request):
 
 
 def logout(request):
-    auth.logout(request)
+    #auth.logout(request)
+    if 'username' in request.session:
+        request.session.flush()
+    
     return redirect('/login')
